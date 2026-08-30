@@ -1,9 +1,6 @@
-import numpy as np
-
 def orbit_darts_jmm(darts_cotract):
     num_darts = darts_cotract.shape[1]
     orbit_Darts = [[] for _ in range(num_darts)]
-    max_iter = 10000
 
     for i in range(num_darts):
         if darts_cotract[0, i] != -1:
@@ -12,31 +9,26 @@ def orbit_darts_jmm(darts_cotract):
             phi = 0
             orbit = []
             ind = i
-            count = 0
+
             while phi != tem:
-                if count > max_iter:
-                    print(f"Bucle infinito en i={i}, detenido tras {max_iter} iteraciones")
-                    break
                 if t == 1:
-                    phi = darts_cotract[1, ind+1]  # phi del alpha
-                    # print(f"phi es {phi} en el bucle {count}")
-                    orbit.append(darts_cotract[2, phi-1])
+                    phi = darts_cotract[1, ind + 1]  # phi del alpha
+                    orbit.append(darts_cotract[2, phi - 1])
                     ind = phi - 1
-                if t == 0:
-                    phi = darts_cotract[1, darts_cotract[0, ind-1]-1]
-                    # print(f"phi es {phi} en el bucle {count}")
-                    orbit.append(darts_cotract[2, phi-1])
+                elif t == 0:
+                    # Traducción matemática exacta del índice base-0
+                    phi = darts_cotract[1, darts_cotract[0, ind] - 2]
+                    orbit.append(darts_cotract[2, phi - 1])
                     ind = phi - 1
+
                 t = phi % 2
-                count = count + 1
+
         else:
             orbit = []
-            count = 0
+
         orbit_Darts[i] = orbit
-        # print(f"Bucle nº {i}, pasos: {count}, órbita: {orbit}")
 
     return orbit_Darts
-
 
 if __name__ == "__main__":
 

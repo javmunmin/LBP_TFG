@@ -3,19 +3,43 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-def matlab_resize_nearest(imagen_original, nuevo_tam):
+def matlab_rgb2gray(image):
     """
-    Replica exacta de imresize(imagen_original, [new_h, new_w], 'nearest') de MATLAB.
-    nuevo_tam debe ser una tupla: (nuevo_alto, nuevo_ancho)
+    Réplica matemáticamente exacta de rgb2gray de MATLAB.
+    """
+    # Separamos los canales y convertimos a float64 para máxima precisión
+    R = image[:, :, 0].astype(np.float64)
+    G = image[:, :, 1].astype(np.float64)
+    B = image[:, :, 2].astype(np.float64)
+
+    # Coeficientes exactos del estándar NTSC usados por MATLAB
+    gray = 0.29893602129377539 * R + 0.58704307445112136 * G + 0.11402090425510336 * B
+
+    # Redondeo clásico (al entero más cercano) y convertimos a uint8
+    return np.round(gray).astype(np.uint8)
+
+def matlab_resize_nearest(imagen_original, nuevo_ancho):
+    """
+    Réplica exacta de imresize(imagen_original, [NaN, nuevo_ancho], 'nearest')
     """
     old_h, old_w = imagen_original.shape[:2]
-    new_h, new_w = nuevo_tam
 
-    # MATLAB mapea los índices usando esta lógica matemática:
-    indices_filas = np.floor(((np.arange(1, new_h + 1) - 0.5) * (old_h / new_h)) + 0.5).astype(int) - 1
-    indices_columnas = np.floor(((np.arange(1, new_w + 1) - 0.5) * (old_w / new_w)) + 0.5).astype(int) - 1
+    # 1. Escalado isotrópico: usamos la escala de la anchura para toda la matriz
+    scale = nuevo_ancho / old_w
 
-    # Evitamos salirnos de los bordes por redondeo
+    # 2. Replicamos el ceil de MATLAB para la altura proporcional
+    new_h = int(np.ceil(old_h * scale))
+    new_w = nuevo_ancho
+
+    # 3. Proyección de índices usando la escala única
+    u_filas = (np.arange(1, new_h + 1) - 0.5) / scale + 0.5
+    u_columnas = (np.arange(1, new_w + 1) - 0.5) / scale + 0.5
+
+    # 4. Redondeo clásico (floor + 0.5) y ajuste a base-0 de Python
+    indices_filas = np.floor(u_filas + 0.5).astype(int) - 1
+    indices_columnas = np.floor(u_columnas + 0.5).astype(int) - 1
+
+    # 5. Límite de bordes (transforma el índice 3 sobrante en un 2 para replicar la última fila)
     indices_filas = np.clip(indices_filas, 0, old_h - 1)
     indices_columnas = np.clip(indices_columnas, 0, old_w - 1)
 
@@ -27,19 +51,28 @@ def lbp_jmm(image, s):
     Función inicial. Como argumentos pasamos la imagen_jmm o matriz deseada, y devuelve
     la matriz de dardos inicializada, y una lista de listas con los dardos por píxel
     """
+    print(f"La imagen tiene {image.ndim} dimensiones")
+    print(f"La imagen original es:\n{np.array(image)}")
+    # if image.ndim == 3 and image.shape[2] == 3:
+    #     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     if image.ndim == 3 and image.shape[2] == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        image = matlab_rgb2gray(image)
+
 
     image = image.astype(np.uint8)  # Igual que Matlab
     M, N = image.shape
 
+    print(f"La imagen en escala de grises es:\n{image}")
+
     if s != N:
         M_orig, N_orig = image.shape
         N = s
-        M = int(round((M_orig / N_orig) * N))
+        M = int(np.ceil((M_orig / N_orig) * N))
 
         # Usamos nuestra función para una interpolación al vecino más cercano semejante a la que realiza Matlab
-        image = matlab_resize_nearest(image, (M, N))
+        image = matlab_resize_nearest(image, N)
+
+    print(f"The new matrix is:\n{image}")
 
     NumDarts_jmm = ((N + 1) * (M * 2)) + ((M + 1) * (N * 2))
     verdart = M * 2 * (N + 1)

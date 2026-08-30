@@ -3,11 +3,11 @@ import numpy as np
 
 def imagen_jmm(darts_bypixel, LBP_values):
     # Definimos los colores (RGB). Cambiamos nombres para no pisar funciones nativas (min/max)
-    color_max = np.array([255, 255, 255])   # 4
-    color_min = np.array([0, 0, 0])         # 0
-    slope = np.array([125, 125, 125])       # 2
-    saddle = np.array([0, 0, 255])          # 3
-    plateaus = np.array([255, 0, 0])        # -1
+    color_max = np.array([255, 255, 255])   # 4, blanco
+    color_min = np.array([0, 0, 0])         # 0, negro
+    slope = np.array([125, 125, 125])       # 2, gris
+    saddle = np.array([0, 0, 255])          # 3, azul
+    plateaus = np.array([255, 0, 0])        # -1, rojo
 
     # Tamaño de la imagen_jmm (M filas, N columnas)
     M = len(darts_bypixel)

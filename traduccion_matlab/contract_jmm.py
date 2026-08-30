@@ -2,45 +2,51 @@ import numpy as np
 
 
 def contract_jmm(darts):
-    # Encontrar índices donde darts(3,:) == 0
+    # Encontrar índices donde darts[2, :] == 0
     darts_0 = np.where(darts[2, :] == 0)[0]  # Indices con base 0
     darts_remove = np.zeros(len(darts_0), dtype=int)
     d_afec = np.zeros(len(darts_0), dtype=int)
-    con = 0  # en Python será 0, no como en Matlab (índice 1)
+    con = 0  # en Python será 0, no como en Matlab (índice (1)
 
     for i in range(len(darts_0)):
         v = darts_0[i]
-        t = (v+1) % 2
+        t = (v + 1) % 2
         # en matlab es t = mod(v,2), siendo v el índice de cada posición donde darts(3,:) == 0.
         # Sumamos 1 al índice para igualar
 
-        if (t == 1) and darts[2, v+1] == 0:
+        # Condición para dardos impares
+        if (t == 1) and darts[2, v + 1] == 0:
             darts_remove[con] = v
-            d_afec[con] = np.where(darts[1, :] == v+1)[0][0]
-            con = con + 1
-        if (t == 0) and darts[2, v-1] == 0:
+            d_afec[con] = np.where(darts[1, :] == v + 1)[0][0]
+            con += 1
+
+        # Condición para dardos pares
+        if (t == 0) and darts[2, v - 1] == 0:
             darts_remove[con] = v
-            d_afec[con] = np.where(darts[1, :] == v+1)[0][0]
-            con = con + 1
+            d_afec[con] = np.where(darts[1, :] == v + 1)[0][0]
+            con += 1
 
     darts_remove = darts_remove[:con]
     d_afec = d_afec[:con]
-    phis = darts[1, darts_remove]
+    phis = darts[1, darts_remove].copy()
     darts_cotract = darts.copy()
     # Antes de calcular la intersección, sumamos 1 a cada elemento de darts_remove,
     # ya que en matlab usan índices sobre 1
     darts_remove = darts_remove + 1
+    # Réplica exacta del intersect de MATLAB (1 sola pasada)
     tem, a, b = np.intersect1d(phis, darts_remove, return_indices=True)
     # Restamos el 1 sumado anteriormente para volver a los valores de índices deseados
     darts_remove = darts_remove - 1
-    phis[a] = darts[1, tem-1]
+    phis[a] = darts[1, tem - 1]
 
+    # Reasignamos los nuevos punteros phi a los dardos predecesores
     for i in range(len(phis)):
         darts_cotract[1, d_afec[i]] = phis[i]
+
+    # Marcamos los dardos eliminados con -1 usando la variable original base-0
     darts_cotract[:, darts_remove] = -1
 
     return darts_cotract
-
 
 if __name__ == "__main__":
     # Resultado esperado con s = 3
