@@ -1,0 +1,1 @@
+Repositorio donde se almacenan los códigos realizados para el trabajo de fin de grado con título "Estudio de estructuras representativas en imágenes digitales", realizado por el alumno de la Universidad de Sevilla, Javier Muñiz Minaya
