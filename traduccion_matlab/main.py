@@ -386,17 +386,21 @@ import imagen_jmm
 # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 # s = 12
 #
-# image = cv2.imread('picaso_15x13.png')
-# image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-# s = 16
+image = cv2.imread('picaso_15x13.png')
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+s = 16
 
 # image = cv2.imread('AAA.tif')
 # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 # s = 405
 
-image = cv2.imread('3096.png')
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-s = 250
+# image = cv2.imread('3096.png')
+# image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+# s = 250
+
+# image = cv2.imread('42049.png')
+# image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+# s = 400
 
 darts_jmm, darts_bypixel = lbp_jmm.lbp_jmm(image, s)
 print(f"darts_jmm queda:\n{darts_jmm}")
@@ -426,4 +430,4 @@ plt.axis('off')
 plt.show()
 
 save_img = cv2.cvtColor(LBP_img, cv2.COLOR_RGB2BGR)
-cv2.imwrite("3096_definitiva_python.png", save_img)
+cv2.imwrite("picaso_15x13_python_ruido.png", save_img)

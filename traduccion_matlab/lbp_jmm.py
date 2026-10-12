@@ -15,8 +15,9 @@ def matlab_rgb2gray(image):
     # Coeficientes exactos del estándar NTSC usados por MATLAB
     gray = 0.29893602129377539 * R + 0.58704307445112136 * G + 0.11402090425510336 * B
 
-    # Redondeo clásico (al entero más cercano) y convertimos a uint8
+    # Redondeo al entero más cercano y convertimos a uint8
     return np.round(gray).astype(np.uint8)
+
 
 def matlab_resize_nearest(imagen_original, nuevo_ancho):
     """
@@ -24,22 +25,17 @@ def matlab_resize_nearest(imagen_original, nuevo_ancho):
     """
     old_h, old_w = imagen_original.shape[:2]
 
-    # 1. Escalado isotrópico: usamos la escala de la anchura para toda la matriz
     scale = nuevo_ancho / old_w
 
-    # 2. Replicamos el ceil de MATLAB para la altura proporcional
     new_h = int(np.ceil(old_h * scale))
     new_w = nuevo_ancho
 
-    # 3. Proyección de índices usando la escala única
     u_filas = (np.arange(1, new_h + 1) - 0.5) / scale + 0.5
     u_columnas = (np.arange(1, new_w + 1) - 0.5) / scale + 0.5
 
-    # 4. Redondeo clásico (floor + 0.5) y ajuste a base-0 de Python
     indices_filas = np.floor(u_filas + 0.5).astype(int) - 1
     indices_columnas = np.floor(u_columnas + 0.5).astype(int) - 1
 
-    # 5. Límite de bordes (transforma el índice 3 sobrante en un 2 para replicar la última fila)
     indices_filas = np.clip(indices_filas, 0, old_h - 1)
     indices_columnas = np.clip(indices_columnas, 0, old_w - 1)
 
@@ -48,16 +44,15 @@ def matlab_resize_nearest(imagen_original, nuevo_ancho):
 
 def lbp_jmm(image, s):
     """
-    Función inicial. Como argumentos pasamos la imagen_jmm o matriz deseada, y devuelve
+    Función inicial. Como argumentos pasamos la imagen o matriz deseada, y devuelve
     la matriz de dardos inicializada, y una lista de listas con los dardos por píxel
     """
     print(f"La imagen tiene {image.ndim} dimensiones")
     print(f"La imagen original es:\n{np.array(image)}")
-    # if image.ndim == 3 and image.shape[2] == 3:
-    #     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     if image.ndim == 3 and image.shape[2] == 3:
-        image = matlab_rgb2gray(image)
-
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    # if image.ndim == 3 and image.shape[2] == 3:
+    #     image = matlab_rgb2gray(image)
 
     image = image.astype(np.uint8)  # Igual que Matlab
     M, N = image.shape
@@ -72,7 +67,7 @@ def lbp_jmm(image, s):
         # Usamos nuestra función para una interpolación al vecino más cercano semejante a la que realiza Matlab
         image = matlab_resize_nearest(image, N)
 
-    print(f"The new matrix is:\n{image}")
+    print(f"La nueva matriz es:\n{image}")
 
     NumDarts_jmm = ((N + 1) * (M * 2)) + ((M + 1) * (N * 2))
     verdart = M * 2 * (N + 1)

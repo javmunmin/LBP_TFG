@@ -46,10 +46,16 @@ matriz = np.array([[7, 6, 9, 3],
 #     ])
 
 # matriz = np.array([[7, 6, 8, 3],
-#                    [9, 1, 7, 4],
-#                    [8, 3, 8, 6],
+#                    [7, 7, 7, 4],
+#                    [7, 7, 8, 6],
 #                    [5, 2, 5, 4],
 #                    [6, 7, 0, 3]])
+
+# matriz = np.array([
+#         [7, 7, 7],
+#         [7, 7, 7],
+#         [7, 7, 7]
+#     ])
 
 # matriz = np.array([[7, 6, 12, 3],
 #                    [9, 5, 7, 4],
@@ -202,23 +208,25 @@ pos = {(x, y): (y, -x) for x, y in G.nodes()}
 nx.draw_networkx(G, pos=pos, labels=valores_grafo, font_size=20, with_labels=True, node_color=mapa_color)
 
 # Para las curvas de nivel:
-# X = [pos[nodo][0] for nodo in G.nodes()]
-# Y = [pos[nodo][1] for nodo in G.nodes()]
-# Z = [G.nodes[nodo]["value"] for nodo in G.nodes()]
-#
-# # Generamos la triangulación usando la librería matplotlib.tri, esto nos servirá para las curvas de nivel
-# triangulacion = tri.Triangulation(X, Y)
-#
-# # Dibujamos las curvas de nivel con la librería matplotlib.plt.tricontour. Para ello necesitamos dar un número
-# # de curvas de nivel, y usar la triangulación previamente calculada
-# numero_niveles = np.max(matriz) - np.min(matriz) - 1
-# curvas = plt.tricontour(triangulacion, Z, levels=numero_niveles,
-#                         cmap='viridis', linewidths=1.5, alpha=0.6, zorder=0)
-#
-# # Añadimos etiquetas a las curvas con su valor
-# plt.clabel(curvas, inline=True, fontsize=12, fmt='%1.1f')
-#
-# plt.gca().set_aspect('equal')
+X = [pos[nodo][0] for nodo in G.nodes()]
+Y = [pos[nodo][1] for nodo in G.nodes()]
+Z = [G.nodes[nodo]["value"] for nodo in G.nodes()]
+
+# Generamos la triangulación usando la librería matplotlib.tri, esto nos servirá para las curvas de nivel
+triangulacion = tri.Triangulation(X, Y)
+print(f"triangulacion:\n{triangulacion}")
+plt.triplot(triangulacion, color='gray', alpha=0.4, linewidth=1, linestyle='--')
+
+# Dibujamos las curvas de nivel con la librería matplotlib.plt.tricontour. Para ello necesitamos dar un número
+# de curvas de nivel, y usar la triangulación previamente calculada
+numero_niveles = np.max(matriz) - np.min(matriz) - 1
+curvas = plt.tricontour(triangulacion, Z, levels=numero_niveles,
+                        cmap='viridis', linewidths=1.5, alpha=0.6, zorder=0)
+
+# Añadimos etiquetas a las curvas con su valor
+plt.clabel(curvas, inline=True, fontsize=12, fmt='%1.1f')
+
+plt.gca().set_aspect('equal')
 
 leyenda = [
     mlines.Line2D([0], [0], marker='o', color='w', label='Máximo',
@@ -237,5 +245,17 @@ leyenda = [
 
 plt.legend(handles=leyenda, loc='upper right', bbox_to_anchor=(1.3, 1.0))
 plt.tight_layout()
+
+
+# plt.figure(figsize=(8, 8))
+#
+# # Dibuja la malla usando la triangulación
+# plt.triplot(triangulacion, color='green', marker='o', markersize=6, linestyle='-')
+#
+# # Ajustes de visualización
+# plt.title('Malla de Triangulación de Delaunay', fontsize=14)
+# plt.gca().set_aspect('equal')
+# plt.axis('off') # Oculta los ejes para ver solo la estructura geométrica
+# plt.tight_layout()
 
 plt.show()
